@@ -55,7 +55,7 @@ struct Constraints {
     /** empty/None means no data cap  */
     3: string data_cap_id,
     4: i64 data_cap_bytes,
-    /** tether address of service agent  */
+    /** tether address of service actor  */
     5: binary data_cap_affinity_addr,
 }
 
@@ -137,18 +137,18 @@ enum StatusCode {
 }
 
 
-enum AgentType {
+enum ActorType {
   ADAPTER = 0,
   NODE = 1,
 }
 
 
 /**
- * Basic agent to support early iteration of ZPR.
+ * Basic actor to support early iteration of ZPR.
  * Probably missing things.
  */
-struct Agent {
-  1: AgentType agent_type,
+struct Actor {
+  1: ActorType actor_type,
   2: map<string, string> attrs,
   /** unix time stamp   */
   3: i64 auth_expires,
@@ -186,7 +186,7 @@ struct NodeAuthRequest {
   5: binary hmac,
   /** 'ADDR:PORT'   */
   6: string vss_service,
-  7: Agent node_agent,
+  7: Actor node_actor,
 }
 
 
@@ -207,7 +207,7 @@ struct ConnectResponse {
   1: i32 connection_id,
   /** SUCCESS if connect request granted   */
   2: StatusCode status,
-  3: optional Agent agent,
+  3: optional Actor actor,
   /** Optional message in case of non SUCCESS  */
   4: optional string reason,
 }
@@ -306,7 +306,7 @@ service VisaService {
 
   /**
    * De-register removes a node from the visa service access list -- AND visa service assumes that
-   * node is disconnecting -- so this also does an agent_disconnect for the node.
+   * node is disconnecting -- so this also does an actor_disconnect for the node.
    */
   oneway void de_register(1:string key)
 
@@ -315,17 +315,17 @@ service VisaService {
   /**
    * Node calls this everytime an adapter connects.
    * Note that the visa service assumes that the connection completes.
-   * If the agent ends up not connecting, or disconnecting the node must
+   * If the actor ends up not connecting, or disconnecting the node must
    * let the visa service know.
    */
   ConnectResponse authorize_connect(1:string key, 2:ConnectRequest request)
 
 
   /**
-   * Notify the visa service that an agent has disconnected. Pass in the ZPR address
-   * assigned to the agent via `authorize_connect`.
+   * Notify the visa service that an actor has disconnected. Pass in the ZPR address
+   * assigned to the actor via `authorize_connect`.
    */
-  void agent_disconnect(1:string key, 2:binary zpr_addr)
+  void actor_disconnect(1:string key, 2:binary zpr_addr)
 
   /**
    * For now, fully optional. Use to test connectivity or key or just to check on
@@ -365,7 +365,7 @@ service VisaSupport {
    */
   void RevokeVisas(1:list<VisaRevocation> vr)
 
-  // TODO: Revocation of credentials/agents.  Could be implemented at the
+  // TODO: Revocation of credentials/actors.  Could be implemented at the
   //       visa service and just end up being a series of visa revocations.
   //       Though how do we tell a node to disconnect an adapter?
 
