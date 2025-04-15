@@ -28,20 +28,24 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           rustup default stable
-          VSAPI_SRC_VERSION=$(cd thrift-src && git describe --tags --always --abbrev=0)
           ./vsapi-rs/generate.sh thrift-src
-          echo "src_version=${VSAPI_SRC_VERSION}" >> $GITHUB_OUTPUT
-          echo "thrift_version=$(thrift --version)" >> $GITHUB_OUTPUT
+          SRC_VERSION=$(cd thrift-src && git describe --tags --always --abbrev=0)
+          THRIFT_VERSION=$(thrift --version)
+          RS_VERSION=$(cat vsapi-rs/this.version)
+
+          echo "title=[$RS_VERSION] Generate rust bindings for VSAPI $SRC_VERSION" >> $GITHUB_OUTPUT
+          echo "body=This code was automatically generated using $THRIFT_VERSION." >> $GITHUB_OUTPUT
+          echo "branch=generate-$RS_VERSION" >> $GITHUB_OUTPUT
 
       - name: Create zpr-vsapi-rs PR
         uses: peter-evans/create-pull-request@v7
         with:
           path: vsapi-rs
           token: ${{ secrets.THRIFT_BINDINGS_RW }}
-          commit-message: "Generate rust bindings for VSAPI ${{ steps.rs.outputs.src_version }}"
-          title: "Generate rust bindings for VSAPI ${{ steps.rs.outputs.src_version }}"
-          body: "This code was automatically generated using ${{ steps.rs.outputs.thrift_version }}."
-          branch: "generate-${{ steps.rs.outputs.src_version }}"
+          commit-message: ${{ steps.rs.outputs.title }}
+          title: ${{ steps.rs.outputs.title }}
+          body: ${{ steps.rs.outputs.body }}
+          branch: ${{ steps.rs.outputs.branch }}
 
   # TODO: Factor out duplicated steps
   # The main reason I haven't done this already is that while it's easy
@@ -74,15 +78,21 @@ jobs:
         run: |
           VSAPI_SRC_VERSION=$(cd thrift-src && git describe --tags --always --abbrev=0)
           ./vsapi-go/generate.sh thrift-src
-          echo "src_version=${VSAPI_SRC_VERSION}" >> $GITHUB_OUTPUT
-          echo "thrift_version=$(thrift --version)" >> $GITHUB_OUTPUT
 
-      - name: Create zpr-vsapi-go PR
+          SRC_VERSION=$(cd thrift-src && git describe --tags --always --abbrev=0)
+          THRIFT_VERSION=$(thrift --version)
+          GO_VERSION=$(cat vsapi-go/this.version)
+
+          echo "title=[$GO_VERSION] Generate go bindings for VSAPI $SRC_VERSION" >> $GITHUB_OUTPUT
+          echo "body=This code was automatically generated using $THRIFT_VERSION." >> $GITHUB_OUTPUT
+          echo "branch=generate-$GO_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create zpr-vsapi-rs PR
         uses: peter-evans/create-pull-request@v7
         with:
           path: vsapi-go
           token: ${{ secrets.THRIFT_BINDINGS_RW }}
-          commit-message: "Generate go bindings for VSAPI ${{ steps.go.outputs.src_version }}"
-          title: "Generate go bindings for VSAPI ${{ steps.go.outputs.src_version }}"
-          body: "This code was automatically generated using ${{ steps.go.outputs.thrift_version }}."
-          branch: "generate-${{ steps.go.outputs.src_version }}"
+          commit-message: ${{ steps.go.outputs.title }}
+          title: ${{ steps.go.outputs.title }}
+          body: ${{ steps.go.outputs.body }}
+          branch: ${{ steps.go.outputs.branch }}
