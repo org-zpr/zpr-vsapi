@@ -1,7 +1,7 @@
 name: Generate Bindings
 on:
   release:
-    types: [created]
+    types: [created, edited]
 jobs:
   generate-rust-bindings:
     runs-on: ubuntu-latest
@@ -47,11 +47,6 @@ jobs:
           body: ${{ steps.rs.outputs.body }}
           branch: ${{ steps.rs.outputs.branch }}
 
-  # TODO: Factor out duplicated steps
-  # The main reason I haven't done this already is that while it's easy
-  # to pass the release name/hash between jobs, the vsapi thrift source
-  # is a different matter, so I'm just checking it out wholesale in both
-  # cases, but there should be a way to trim this all down?
   generate-go-bindings:
     runs-on: ubuntu-latest
     container:
@@ -87,7 +82,7 @@ jobs:
           echo "body=This code was automatically generated using $THRIFT_VERSION." >> $GITHUB_OUTPUT
           echo "branch=generate-$GO_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Create zpr-vsapi-rs PR
+      - name: Create zpr-vsapi-go PR
         uses: peter-evans/create-pull-request@v7
         with:
           path: vsapi-go
