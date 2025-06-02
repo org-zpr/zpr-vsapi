@@ -14,14 +14,13 @@ env:
 jobs:
   generate-rust-bindings:
     name: Generate Rust Bindings
-    uses: org-zpr/zpr-dev-tools/.github/workflows/generate-pr.yml@b216a0e731331089a992def3930f3f6f2661d3b7
+    uses: org-zpr/zpr-dev-tools/.github/workflows/generate-pr.yml@4cda3cd92373d0df4e800a02c528020ee6291170
     with:
       src-repo: org-zpr/zpr-vsapi
       dst-repo: org-zpr/zpr-vsapi-rs
       lang: rust
       dry-run: ${{ github.event_name == 'pull_request' }}
-      make-script: 'thrift -gen rs -out . $SRC_PATH/vs.thrift;
-          mv vs.rs src/lib.rs'
+      make-script: './generate.sh $SRC_PATH'
     secrets:
       RW_TOKEN: ${{ secrets.THRIFT_BINDINGS_RW }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -29,16 +28,13 @@ jobs:
 
   generate-go-bindings:
     name: Generate Go Bindings
-    uses: org-zpr/zpr-dev-tools/.github/workflows/generate-pr.yml@b216a0e731331089a992def3930f3f6f2661d3b7
+    uses: org-zpr/zpr-dev-tools/.github/workflows/generate-pr.yml@4cda3cd92373d0df4e800a02c528020ee6291170
     with:
       src-repo: org-zpr/zpr-vsapi
       dst-repo: org-zpr/zpr-vsapi-go
       lang: go
       dry-run: ${{ github.event_name == 'pull_request' }}
-      make-script: 'mkdir tmp;
-          thrift -gen go -out tmp $SRC_PATH/vs.thrift;
-          cp -R tmp/vsapi/* .;
-          rm -rf tmp'
+      make-script: './generate.sh $SRC_PATH'
     secrets:
       RW_TOKEN: ${{ secrets.THRIFT_BINDINGS_RW }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
