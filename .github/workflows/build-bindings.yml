@@ -2,92 +2,40 @@ name: Generate Bindings
 on:
   release:
     types: [created, edited]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   generate-rust-bindings:
-    runs-on: ubuntu-latest
-    container:
-      image: docker://ghcr.io/org-zpr/38f3bb925e5e:latest
-    steps:
-      - name: Checkout thrift source
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          path: thrift-src
-
-      - name: Checkout rust thrift bindings
-        uses: actions/checkout@v4
-        with:
-          repository: org-zpr/zpr-vsapi-rs
-          token: ${{ secrets.THRIFT_BINDINGS_RW }}
-          fetch-depth: 0
-          path: vsapi-rs
-
-      - name: Build Rust Bindings
-        id: rs
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          rustup default stable
-          ./vsapi-rs/generate.sh thrift-src
-          SRC_VERSION=$(cd thrift-src && git describe --tags --always --abbrev=0)
-          THRIFT_VERSION=$(thrift --version)
-          RS_VERSION=$(cat vsapi-rs/this.version)
-
-          echo "title=[$RS_VERSION] Generate rust bindings for VSAPI $SRC_VERSION" >> $GITHUB_OUTPUT
-          echo "body=This code was automatically generated using $THRIFT_VERSION." >> $GITHUB_OUTPUT
-          echo "branch=generate-$RS_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Create zpr-vsapi-rs PR
-        uses: peter-evans/create-pull-request@v7
-        with:
-          path: vsapi-rs
-          token: ${{ secrets.THRIFT_BINDINGS_RW }}
-          commit-message: ${{ steps.rs.outputs.title }}
-          title: ${{ steps.rs.outputs.title }}
-          body: ${{ steps.rs.outputs.body }}
-          branch: ${{ steps.rs.outputs.branch }}
+    name: Generate Rust Bindings
+    uses: org-zpr/zpr-dev-tools/.github/workflows/generate-pr.yml@4cda3cd92373d0df4e800a02c528020ee6291170
+    with:
+      src-repo: org-zpr/zpr-vsapi
+      dst-repo: org-zpr/zpr-vsapi-rs
+      lang: rust
+      dry-run: ${{ github.event_name == 'pull_request' }}
+      make-script: './generate.sh "$SRC_PATH"'
+    secrets:
+      RW_TOKEN: ${{ secrets.THRIFT_BINDINGS_RW }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RO_TOKEN: ${{ secrets.ZPR_CICD_RO_TOKEN }}
 
   generate-go-bindings:
-    runs-on: ubuntu-latest
-    container:
-      image: docker://ghcr.io/org-zpr/38f3bb925e5e:latest
-    steps:
-      - name: Checkout thrift source
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          path: thrift-src
-
-      - name: Checkout go thrift bindings
-        uses: actions/checkout@v4
-        with:
-          repository: org-zpr/zpr-vsapi-go
-          token: ${{ secrets.THRIFT_BINDINGS_RW }}
-          fetch-depth: 0
-          path: vsapi-go
-
-      - name: Generate Go Bindings
-        id: go
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VSAPI_SRC_VERSION=$(cd thrift-src && git describe --tags --always --abbrev=0)
-          ./vsapi-go/generate.sh thrift-src
-
-          SRC_VERSION=$(cd thrift-src && git describe --tags --always --abbrev=0)
-          THRIFT_VERSION=$(thrift --version)
-          GO_VERSION=$(cat vsapi-go/this.version)
-
-          echo "title=[$GO_VERSION] Generate go bindings for VSAPI $SRC_VERSION" >> $GITHUB_OUTPUT
-          echo "body=This code was automatically generated using $THRIFT_VERSION." >> $GITHUB_OUTPUT
-          echo "branch=generate-$GO_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Create zpr-vsapi-go PR
-        uses: peter-evans/create-pull-request@v7
-        with:
-          path: vsapi-go
-          token: ${{ secrets.THRIFT_BINDINGS_RW }}
-          commit-message: ${{ steps.go.outputs.title }}
-          title: ${{ steps.go.outputs.title }}
-          body: ${{ steps.go.outputs.body }}
-          branch: ${{ steps.go.outputs.branch }}
+    name: Generate Go Bindings
+    uses: org-zpr/zpr-dev-tools/.github/workflows/generate-pr.yml@4cda3cd92373d0df4e800a02c528020ee6291170
+    with:
+      src-repo: org-zpr/zpr-vsapi
+      dst-repo: org-zpr/zpr-vsapi-go
+      lang: go
+      dry-run: ${{ github.event_name == 'pull_request' }}
+      make-script: './generate.sh "$SRC_PATH"'
+    secrets:
+      RW_TOKEN: ${{ secrets.THRIFT_BINDINGS_RW }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RO_TOKEN: ${{ secrets.ZPR_CICD_RO_TOKEN }}
