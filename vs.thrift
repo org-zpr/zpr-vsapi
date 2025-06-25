@@ -150,7 +150,7 @@ enum ActorType {
 struct Actor {
   1: ActorType actor_type,
   2: map<string, string> attrs,
-  /** unix time stamp   */
+  /** unix time stamp seconds  */
   3: i64 auth_expires,
   /** assigned ZPR address   */
   4: binary zpr_addr,
@@ -181,7 +181,7 @@ struct HelloResponse {
 struct NodeAuthRequest {
   1: i32 session_id,
   2: Challenge challenge,
-  3: i64 timestamp,
+  3: i64 timestamp, // unix time in seconds
   4: binary node_cert,
   5: binary hmac,
   /** 'ADDR:PORT'   */
@@ -250,6 +250,25 @@ struct PolicyInfo {
   //       more than one node we will need to add that info back in.
 }
 
+enum ServiceType {
+  ACTOR_AUTHENTICATION = 1,   // actor authentication service
+}
+
+struct ServiceDescriptor {
+  1: required ServiceType type,
+  2: string service_id,
+  3: string uri,
+  4: binary address, // ZPR address
+}
+
+struct ServicesList {
+  1: i64 expiration, // unix time in seconds
+  2: list<ServiceDescriptor> services,
+}
+
+struct ServicesResponse {
+  1: ServicesList services,
+}
 
 
 
@@ -311,7 +330,6 @@ service VisaService {
   oneway void de_register(1:string key)
 
 
-
   /**
    * Node calls this everytime an adapter connects.
    * Note that the visa service assumes that the connection completes.
@@ -335,6 +353,13 @@ service VisaService {
 
   /**  `traffic` is the initial packet detected for an unknown flow. */
   VisaResponse request_visa(1:string key, 2:binary src_tether_addr, 3: i8 l3_type, 4:binary traffic)
+
+  /**
+   * Request the active services list from the visa service.
+   * The visa service may also send this list via a push message (ServicesUpdate) via
+   * VisaSuport API.
+   */
+  ServicesResponse request_services()
 }
 
 /**
@@ -369,6 +394,13 @@ service VisaSupport {
   //       visa service and just end up being a series of visa revocations.
   //       Though how do we tell a node to disconnect an adapter?
 
+
+  /**
+   * Visa service tells node about the services that it provides.
+   * The payload here is the full list of services from the visa service and it
+   * should replace any service list previously cached in the node.
+   */
+  oneway void ServicesUpdate(1:ServicesList services)
 }
 
 
