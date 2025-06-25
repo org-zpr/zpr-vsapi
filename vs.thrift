@@ -359,7 +359,7 @@ service VisaService {
    * The visa service may also send this list via a push message (ServicesUpdate) via
    * VisaSuport API.
    */
-  ServicesResponse request_services()
+  ServicesResponse request_services(1:string key)
 }
 
 /**
