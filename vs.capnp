@@ -307,8 +307,9 @@ interface VisaSupportService {
 # TODO: Information about policy and topology 
 interface VSSHandle {
   pushVisaOp            @0 (ops :List(VisaOp)) -> (ack :Ack);
-  setServices           @1 (version :UInt64, svcs :List(ServiceDescriptor)) -> (res :Result);
-  ping                  @2 () -> (res :Result);
+  revokeAuthentication  @1 (addrs :List(IpAddr)) -> (ack :Ack);
+  setServices           @2 (version :UInt64, svcs :List(ServiceDescriptor)) -> (res :Result);
+  ping                  @3 () -> (res :Result);
 }
 
 struct VSSConnectRequest { # reserved for future
