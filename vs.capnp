@@ -1,33 +1,39 @@
 @0x910cda10d7c9c52c;
 
 interface VisaService {
-  connect   @0 (req :VSConnectRequest) -> (resp :VSConnectResponse);
+  connect   @0 (req :VSConnectRequest) -> (resp :Result(VSGate));
 }
 
 interface VSGate {
   challenge    @0 () -> (challenge: Challenge);
-  authenticate @1 (cresp: ChallengeResponse) -> (res :VSConnection);
+  authenticate @1 (cresp: ChallengeResponse) -> (res :Result(VSHandle));
 }
 
 interface VSHandle {
-  registerVss       @0 (addr: SockAddr) -> (res :Result); 
+  registerVss       @0 (addr: SockAddr) -> (res :OkOrError); 
 
-  authorizeConnect  @1 (req :ConnectRequest) -> (resp :ConnectResponse);
-  reauthorize       @2 (req :ReauthRequest) -> (resp :ConnectResponse);
-  notifyDisconnect  @3 (req :DisconnectNotice) -> (res :Result);
+  authorizeConnect  @1 (req :ConnectRequest) -> (resp :Result(Connection));
+  reauthorize       @2 (req :ReauthRequest) -> (resp :Result(Connection));
+  notifyDisconnect  @3 (req :DisconnectNotice) -> (res :OkOrError);
 
   visaRequest       @4 (req :VisaRequest) -> (resp :VisaResponse);
 
-  ping              @5 () -> (res :Result);
+  ping              @5 () -> (res :OkOrError);
 }
 
-struct Result {
+struct OkOrError {
   union {
     ok @0 :Void;
     error @1 :Error;
   }
 }
 
+struct Result(T) {
+  union {
+    ok @0 :T;
+    error @1 :Error;
+  }
+}
 
 # ---------------------------------------------------
 # Authentication
@@ -51,10 +57,10 @@ struct ChallengeResponse {
 
 struct ReauthRequest {
   zprAddr  @0 :IpAddr; 
-  blobs    @1 :List(Blob);
+  blobs    @1 :List(AuthBlob);
 }
 
-struct Blob {
+struct AuthBlob {
   union {
     ss @0 :ZPRSelfSignedBlob;
     ac @1 :AuthCodeBlob;
@@ -105,22 +111,8 @@ struct VSConnectRequest {
   params @2 :List(Param); # none are required (yet)
 }
 
-struct VSConnection {
-  union {
-    handle @0 :VSHandle;
-    error  @1 :Error;
-  }
-}
-
-struct VSConnectResponse {
-  union {
-    gate   @0 :VSGate;   
-    error  @1 :Error;
-  }
-}
-
 struct ConnectRequest {
-  blobs          @0 :List(Blob);
+  blobs          @0 :List(AuthBlob);
   claims         @1 :List(Claim);
   substrateAddr  @2 :IpAddr;
   dockInterface  @3 :UInt8;  # zero means 'unspecified/default'
@@ -132,14 +124,6 @@ struct Claim {
   value @1 :Text;
 }
 
-
-# TODO - Support for node connections.
-struct ConnectResponse {
-  union {
-    success   @0 :Connection;
-    error     @1 :Error;
-  }
-}
 
 struct DisconnectNotice {
   zprAddr     @0 :IpAddr; 
@@ -301,15 +285,15 @@ struct SockAddr {
 ##
 
 interface VisaSupportService {
-  connect @0 (req: VSSConnectRequest) -> (vss :VSSHandle, error :Error);
+  connect @0 (req: VSSConnectRequest) -> (resp: Result(VSSHandle));
 }
 
 # TODO: Information about policy and topology 
 interface VSSHandle {
   pushVisaOp            @0 (ops :List(VisaOp)) -> (ack :Ack);
   revokeAuthentication  @1 (addrs :List(IpAddr)) -> (ack :Ack);
-  setServices           @2 (version :UInt64, svcs :List(ServiceDescriptor)) -> (res :Result);
-  ping                  @3 () -> (res :Result);
+  setServices           @2 (version :UInt64, svcs :List(ServiceDescriptor)) -> (res :OkOrError);
+  ping                  @3 () -> (res :OkOrError);
 }
 
 struct VSSConnectRequest { # reserved for future
