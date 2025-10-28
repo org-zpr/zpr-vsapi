@@ -20,7 +20,7 @@ jobs:
       dst-repo: org-zpr/zpr-vsapi-rs
       lang: rust
       dry-run: ${{ github.event_name == 'pull_request' }}
-      make-script: 'apt-get install -y capnproto && ./generate.sh "$SRC_PATH" && ./generate.sh --v2 "$SRC_PATH"'
+      make-script: 'apt-get install -y capnproto && rustup default stable && ./generate.sh "$SRC_PATH" && ./generate.sh --v2 "$SRC_PATH"'
     secrets:
       RW_TOKEN: ${{ secrets.THRIFT_BINDINGS_RW }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
