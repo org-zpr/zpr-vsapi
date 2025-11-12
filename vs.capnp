@@ -306,6 +306,7 @@
 # ###################################################
 
 interface VisaService {
+  # params - node should pass 'zpr_addr' (IpAddr) and 'aaa_prefix' (CIDR string)
   connect   @0 (req :VSConnectRequest) -> (resp :Result(VSGate));
 }
 
@@ -319,6 +320,8 @@ interface VSHandle {
 
   authorizeConnect  @1 (req :ConnectRequest) -> (resp :Result(Connection));
   reauthorize       @2 (req :ReauthRequest) -> (resp :Result(Connection));
+
+  # req - To disconnect itself a node can omit the zpr_address arg.
   notifyDisconnect  @3 (req :DisconnectNotice) -> (res :OkOrError);
 
   visaRequest       @4 (req :VisaRequest) -> (resp :VisaResponse);
@@ -398,16 +401,20 @@ enum VSConnT {
 }
 
 enum ParamT {
-  string @0;
-  u64    @1;
-  ipv4   @2;
-  ipv6   @3;
+  string @0;   # Text
+  u64    @1;   # UInt64
+  ipv4   @2;   # Data
+  ipv6   @3;   # Data
 }
 
 struct Param {
   ptype @0 :ParamT;
   name  @1 :Text;
-  value @2 :Data;
+  union {
+    valueData @2 :Data;
+    valueText @3 :Text;
+    valueU64  @4 :UInt64;
+  }
 } 
 
 struct VSConnectRequest {
@@ -566,6 +573,7 @@ enum ErrorCode {
   quotaExceeded          @6;
   temporarilyUnavailable @7;
   authError              @8;
+  paramError             @9;
 }
 
 
