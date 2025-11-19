@@ -514,8 +514,9 @@ struct Visa {
 
 struct DockPep {
   union {
-    tcpudp @0 :DockPepTcpUdp;
-    icmp   @1 :DockPepIcmp;
+    tcp    @0 :DockPepTcpUdp;
+    udp    @1 :DockPepTcpUdp;
+    icmp   @2 :DockPepIcmp;
   }
 }
 
