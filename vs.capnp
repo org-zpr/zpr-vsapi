@@ -524,7 +524,7 @@ struct DockPep {
 struct DockPepTcpUdp {
   sourcePort @0 :UInt16;
   destPort   @1 :UInt16;
-  enpoint    @2 :EndpointT;  # is visa designed for server dock or client dock
+  endpoint   @2 :EndpointT;  # is visa designed for server dock or client dock
 }
 
 # TODO: Not including the "stateful" icmp from prototype until we need it.
