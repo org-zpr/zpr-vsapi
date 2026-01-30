@@ -370,12 +370,12 @@ struct ReauthRequest {
 
 struct AuthBlob {
   union {
-    ss @0 :ZPRSelfSignedBlob;
+    ss @0 :SelfSignedBlob;
     ac @1 :AuthCodeBlob;
   }
 }
 
-struct ZPRSelfSignedBlob {
+struct SelfSignedBlob {
   alg        @0 :ChallengeAlg;
   challenge  @1 :Data;   
   cn         @2 :Text;
