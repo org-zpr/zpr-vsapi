@@ -177,6 +177,8 @@
 #
 #   * Node first calls "registerVss" to bring up the VSSAPI.
 #
+#   * Visa service will send configuration parameters to the node.
+#
 #   * Visa service will push the current services list which overwrites whatever
 #     the node had in memory.
 #
@@ -281,9 +283,12 @@
 # fails to call "registerVss" within some (configurable) amount of time, this is
 # considered a protocol error and the node will be disconnected.
 #
-# When the Visa Service opens a connection to the VSSAPI, it will send the current
-# services list. If the list changes the visa service will resend it with a higher
-# version number.
+# When the Visa Service opens a connection to the VSSAPI, it will first call the
+# configure function to send configuration parameters to the node. These will
+# include the AAA network prefix that the node should use.
+#
+# Next the Visa Service will call the setServices function to tell the node
+# about the authentication services available on the network.
 #
 # The visa service pushes visas and visa revocations to the node as the need
 # arises. These must be acknowledged by the node before the visa service updates
@@ -306,7 +311,7 @@
 # ###################################################
 
 interface VisaService {
-  # params - node should pass 'zpr_addr' (IpAddr) and 'aaa_prefix' (CIDR string)
+  # params - node should pass 'zpr_addr' (IpAddr)
   connect   @0 (req :VSConnectRequest) -> (resp :Result(VSGate));
 }
 
@@ -607,8 +612,9 @@ interface VisaSupportService {
 interface VSSHandle {
   pushVisaOp            @0 (ops :List(VisaOp)) -> (ack :Ack);
   revokeAuthentication  @1 (addrs :List(IpAddr)) -> (ack :Ack);
-  setServices           @2 (version :UInt64, svcs :List(ServiceDescriptor)) -> (res :OkOrError);
+  setServices           @2 (svcs :List(ServiceDescriptor)) -> (res :OkOrError);
   ping                  @3 () -> (res :OkOrError);
+  configure             @4 (params :List(Param)) -> (ack: Ack);
 }
 
 struct VSSConnectRequest { # reserved for future
