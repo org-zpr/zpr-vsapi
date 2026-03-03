@@ -614,7 +614,7 @@ interface VSSHandle {
   revokeAuthentication  @1 (addrs :List(IpAddr)) -> (ack :Ack);
   setServices           @2 (svcs :List(ServiceDescriptor)) -> (res :OkOrError);
   ping                  @3 () -> (res :OkOrError);
-  configure             @4 (params :List(Param)) -> (ack: Ack);
+  configure             @4 (params :List(Param)) -> (res: OkOrError);
 }
 
 struct VSSConnectRequest { # reserved for future
