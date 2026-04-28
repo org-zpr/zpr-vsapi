@@ -48,9 +48,9 @@
 #
 #
 #
-# ----------------------------------------------------------------------------- 
-# VSAPI 
-# ----------------------------------------------------------------------------- 
+# -----------------------------------------------------------------------------
+# VSAPI
+# -----------------------------------------------------------------------------
 #
 # Setup:
 #
@@ -193,23 +193,23 @@
 #
 # Impact of synchronization failures:
 #
-#   1. Node has visas installed that the visa service has forgotten.  
+#   1. Node has visas installed that the visa service has forgotten.
 #
 #      This happens in a benign way all the time: due to visa expiration clock
 #      skew. A node holding a visa that has been revoked should be an impossible
 #      situation if visa service and node are correctly implemented.
 #
-#   2. Visa service thinks node has visas that it no longer has.  
+#   2. Visa service thinks node has visas that it no longer has.
 #
 #      The node will simply re-request visas it needs.
 #
-#   3. Node has connected adapters that visa service does not know about. 
+#   3. Node has connected adapters that visa service does not know about.
 #
 #      These adapters will never get visas granted since visa service doesn't know
 #      they exist. Node can detect this by checking the visa deny reason code and
 #      then re-authenticate the adapter.
 #
-#   4. Visa service thinks node has adapters that it does not have. 
+#   4. Visa service thinks node has adapters that it does not have.
 #
 #      Visa service could end up pushing a visa to the node for an unknown
 #      adapter. Node should log the error and not install the visa.
@@ -229,9 +229,9 @@
 #
 #
 #
-# ----------------------------------------------------------------------------- 
+# -----------------------------------------------------------------------------
 # VSSAPI
-# ----------------------------------------------------------------------------- 
+# -----------------------------------------------------------------------------
 #
 # Setup:
 #
@@ -321,7 +321,7 @@ interface VSGate {
 }
 
 interface VSHandle {
-  registerVss       @0 (addr: SockAddr) -> (res :Result(List(VisaOp))); 
+  registerVss       @0 (addr: SockAddr) -> (res :Result(List(VisaOp)));
 
   authorizeConnect  @1 (req :ConnectRequest) -> (resp :Result(Connection));
   reauthorize       @2 (req :ReauthRequest) -> (resp :Result(Connection));
@@ -369,7 +369,7 @@ struct ChallengeResponse {
 }
 
 struct ReauthRequest {
-  zprAddr  @0 :IpAddr; 
+  zprAddr  @0 :IpAddr;
   blobs    @1 :List(AuthBlob);
 }
 
@@ -382,10 +382,10 @@ struct AuthBlob {
 
 struct SelfSignedBlob {
   alg        @0 :ChallengeAlg;
-  challenge  @1 :Data;   
+  challenge  @1 :Data;
   cn         @2 :Text;
   timestamp  @3 :UInt64;
-  signature  @4 :Data; 
+  signature  @4 :Data;
 }
 
 struct AuthCodeBlob {
@@ -420,7 +420,7 @@ struct Param {
     valueText @3 :Text;
     valueU64  @4 :UInt64;
   }
-} 
+}
 
 struct VSConnectRequest {
   cn     @0 :Text;
@@ -443,7 +443,7 @@ struct Claim {
 
 
 struct DisconnectNotice {
-  zprAddr     @0 :IpAddr; 
+  zprAddr     @0 :IpAddr;
   reasonCode  @1 :DisconnectReason;
 }
 
@@ -504,8 +504,9 @@ enum VisaDenyCode {
   sourceAuthError @5;
   destAuthError   @6;
   quotaExceeded   @7;
+  noRoute         @8;
 }
-  
+
 
 struct Visa {
   issuerId    @0 :UInt64;  # unique in a running ZPRnet
@@ -544,8 +545,8 @@ struct KeySet {
 }
 
 # TODO: Not yet implemented
-struct Constraint {}    
-  
+struct Constraint {}
+
 enum KeyFormat {
   zprKF01 @0; # TBD
 }
@@ -564,7 +565,7 @@ enum EndpointT {
 
 struct Error {
   code    @0 :ErrorCode;
-  message @1 :Text; 
+  message @1 :Text;
   retryIn @2 :UInt32; # seconds until retry is acceptable, 0 if unknown
 }
 
@@ -608,7 +609,7 @@ interface VisaSupportService {
   connect @0 (req: VSSConnectRequest) -> (resp: Result(VSSHandle));
 }
 
-# TODO: Information about policy and topology 
+# TODO: Information about policy and topology
 interface VSSHandle {
   pushVisaOp            @0 (ops :List(VisaOp)) -> (ack :Ack);
   revokeAuthentication  @1 (addrs :List(IpAddr)) -> (ack :Ack);
@@ -639,7 +640,7 @@ enum ServiceT {
 
 
 # ---------------------------------------------------
-# Pushes 
+# Pushes
 # ---------------------------------------------------
 
 struct VisaOp {
@@ -652,7 +653,7 @@ struct VisaOp {
 struct Ack {
   ok         @0 :Bool;   # if any pushed item is processed successfully, this is TRUE.
   error      @1 :Error;  # if not all items are processed successfully, this holds an error.
-  processed  @2 :UInt32; # 0 <= processed < len(pushed-items) 
+  processed  @2 :UInt32; # 0 <= processed < len(pushed-items)
 }
 
 
