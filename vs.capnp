@@ -616,6 +616,7 @@ interface VSSHandle {
   setServices           @2 (svcs :List(ServiceDescriptor)) -> (res :OkOrError);
   ping                  @3 () -> (res :OkOrError);
   configure             @4 (params :List(Param)) -> (res: OkOrError);
+  setTopology           @5 (links :List(Link)) -> (res :OkOrError);
 }
 
 struct VSSConnectRequest { # reserved for future
@@ -656,4 +657,17 @@ struct Ack {
   processed  @2 :UInt32; # 0 <= processed < len(pushed-items)
 }
 
+# ---------------------------------------------------
+# Topology / Links
+# ---------------------------------------------------
 
+struct Link {
+  linkId   @0 :Text;     # unique, for debugging.
+  peer     @1 :SockAddr;
+  role     @2 :LinkRole;
+}
+
+enum LinkRole {
+  active  @0;
+  backup  @1;
+}
