@@ -509,13 +509,25 @@ enum VisaDenyCode {
 
 
 struct Visa {
-  issuerId    @0 :UInt64;  # unique in a running ZPRnet
+  issuerId    @0 :UInt64;    # unique in a running ZPRnet
   expiration  @1 :UInt64;
-  sourceAddr  @2 :IpAddr;
-  destAddr    @3 :IpAddr;
-  dockPep     @4 :DockPep;
+  sourceAddr  @2 :IpAddr;    # set on full visa only
+  destAddr    @3 :IpAddr;    # set on full visa only
+  dockPep     @4 :DockPep;   # set on full visa only
   constraints @5 :List(Constraint);
-  sessionKey  @6 :KeySet;
+  sessionKey  @6 :KeySet;    # set on full visa only
+  visaType    @7 :VisaType;
+  fwdPep      @8 :FwdPep;    # set on forwarding visa only
+}
+
+enum VisaType {
+  full         @0;  # used at ingress/egress nodes
+  forwarding   @1;  # used at intermediate nodes
+}
+
+struct FwdPep {
+  nextHop   @0 :IpAddr; # link'd node ZPR address (for now)
+  symmetric @1 :Bool;   # if true, the visa route applies in both directions
 }
 
 struct DockPep {
