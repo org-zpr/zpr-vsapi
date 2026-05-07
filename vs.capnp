@@ -511,13 +511,10 @@ enum VisaDenyCode {
 struct Visa {
   issuerId    @0 :UInt64;    # unique in a running ZPRnet
   expiration  @1 :UInt64;
-  sourceAddr  @2 :IpAddr;    # set on ingress/egress visa only
-  destAddr    @3 :IpAddr;    # set on ingress/egress visa only
+  visaType    @2 :VisaType;
+  constraints @3 :List(Constraint);
   dockPep     @4 :DockPep;   # set on ingress/egress visa only
-  constraints @5 :List(Constraint);
-  sessionKey  @6 :KeySet;    # set on egress/ingress visa only
-  visaType    @7 :VisaType;
-  fwdPep      @8 :FwdPep;    # if set, forward over a link
+  fwdPep      @5 :FwdPep;    # if set, forward over a link
 }
 
 enum VisaType {
@@ -531,10 +528,13 @@ struct FwdPep {
 }
 
 struct DockPep {
+  sourceAddr  @0 :IpAddr;
+  destAddr    @1 :IpAddr;
+  sessionKey  @2 :KeySet;
   union {
-    tcp    @0 :DockPepTcpUdp;
-    udp    @1 :DockPepTcpUdp;
-    icmp   @2 :DockPepIcmp;
+    tcp    @3 :DockPepTcpUdp;
+    udp    @4 :DockPepTcpUdp;
+    icmp   @5 :DockPepIcmp;
   }
 }
 
