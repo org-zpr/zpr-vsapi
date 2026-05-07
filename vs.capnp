@@ -312,7 +312,8 @@
 
 interface VisaService {
   # params - node should pass 'zpr_addr' (IpAddr)
-  connect   @0 (req :VSConnectRequest) -> (resp :Result(VSGate));
+  connect   @0 (req :VSConnectRequest) -> (resp :Result(VSGate));    # used in bootstrap
+  open      @1 (req :VSConnectRequest) -> (resp :Result(VSHandle));  # used post bootstrap, skip auth
 }
 
 interface VSGate {
