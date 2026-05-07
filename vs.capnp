@@ -322,7 +322,7 @@ interface VSGate {
 }
 
 interface VSHandle {
-  registerVss       @0 (addr: SockAddr) -> (res :Result(List(VisaOp)));
+  registerVss       @0 (addr :SockAddr) -> (res :Result(List(VisaOp)));
 
   authorizeConnect  @1 (req :ConnectRequest) -> (resp :Result(Connection));
   reauthorize       @2 (req :ReauthRequest) -> (resp :Result(Connection));
@@ -333,6 +333,14 @@ interface VSHandle {
   visaRequest       @4 (req :VisaRequest) -> (resp :VisaResponse);
 
   ping              @5 () -> (res :OkOrError);
+
+  # res - we may decide that not all info in the Visa needs to be returned
+  # to the node, possibly depending on where the node is on the route
+  # The res may have to change to a struct with a union, or can stay a visa, 
+  # depending on how different types of visas end up being represented
+  visaRequestById   @6 (req :VisaRequestById) -> (res :List(Visa));
+
+  visaIdsRequest    @7 (cn :Text) -> (res :List(UInt64))
 }
 
 struct OkOrError {
@@ -508,6 +516,10 @@ enum VisaDenyCode {
   noRoute         @8;
 }
 
+struct VisaRequestById {
+  cn @0 :Text;
+  id @1 :List(UInt64);
+}
 
 struct Visa {
   issuerId    @0 :UInt64;    # unique in a running ZPRnet
