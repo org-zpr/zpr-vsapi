@@ -334,13 +334,12 @@ interface VSHandle {
 
   ping              @5 () -> (res :OkOrError);
 
-  # res - we may decide that not all info in the Visa needs to be returned
-  # to the node, possibly depending on where the node is on the route
-  # The res may have to change to a struct with a union, or can stay a visa, 
-  # depending on how different types of visas end up being represented
-  visaRequestById   @6 (req :VisaRequestById) -> (res :List(Visa));
+  # VS may or may not return all the visas (hence the list of Result), will be up to
+  # node to re-request if it needs a visa that is not returned
+  # The only 2 error codes that should be used are internal and notFound
+  visaRequestById   @6 (req :List(UInt64)) -> (res :List(Result(Visa)));
 
-  visaIdsRequest    @7 (cn :Text) -> (res :List(UInt64))
+  visaIdsRequest    @7 ()) -> (res :List(UInt64))
 }
 
 struct OkOrError {
@@ -514,11 +513,6 @@ enum VisaDenyCode {
   destAuthError   @6;
   quotaExceeded   @7;
   noRoute         @8;
-}
-
-struct VisaRequestById {
-  cn @0 :Text;
-  id @1 :List(UInt64);
 }
 
 struct Visa {
