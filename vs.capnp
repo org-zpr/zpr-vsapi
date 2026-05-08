@@ -339,7 +339,7 @@ interface VSHandle {
   # The only 2 error codes that should be used are internal and notFound
   visaRequestById   @6 (req :List(UInt64)) -> (res :List(Result(Visa)));
 
-  visaIdsRequest    @7 ()) -> (res :List(UInt64))
+  visaIdsRequest    @7 ()) -> (res :List(UInt64));
 }
 
 struct OkOrError {
