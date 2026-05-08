@@ -334,10 +334,10 @@ interface VSHandle {
 
   ping              @5 () -> (res :OkOrError);
 
-  # VS may or may not return all the visas (hence the list of Result), will be up to
-  # node to re-request if it needs a visa that is not returned
-  # The only 2 error codes that should be used are internal and notFound
-  visaRequestById   @6 (req :List(UInt64)) -> (res :List(Result(Visa)));
+  # VS may or may not return all the visas that the node requests, if it does not
+  # return a visa, it means that the visa does not exist for that node
+  # If the node requests too many visas, the visa will return a quotaExceeded error
+  visaRequestById   @6 (req :List(UInt64)) -> (res :Result(List(Visa)));
 
   visaIdsRequest    @7 () -> (res :List(UInt64));
 }
