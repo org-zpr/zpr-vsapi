@@ -317,12 +317,12 @@ interface VisaService {
 }
 
 interface VSGate {
-  challenge    @0 () -> (challenge: Challenge);
-  authenticate @1 (cresp: ChallengeResponse) -> (res :Result(VSHandle));
+  challenge    @0 () -> (challenge :Challenge);
+  authenticate @1 (cresp :ChallengeResponse) -> (res :Result(VSHandle));
 }
 
 interface VSHandle {
-  registerVss       @0 (addr: SockAddr) -> (res :Result(List(VisaOp)));
+  registerVss       @0 (addr :SockAddr) -> (res :Result(List(VisaOp)));
 
   authorizeConnect  @1 (req :ConnectRequest) -> (resp :Result(Connection));
   reauthorize       @2 (req :ReauthRequest) -> (resp :Result(Connection));
@@ -333,6 +333,13 @@ interface VSHandle {
   visaRequest       @4 (req :VisaRequest) -> (resp :VisaResponse);
 
   ping              @5 () -> (res :OkOrError);
+
+  # VS may or may not return all the visas that the node requests, if it does not
+  # return a visa, it means that the visa does not exist for that node
+  # If the node requests too many visas, the visa will return a quotaExceeded error
+  visaRequestById   @6 (req :List(UInt64)) -> (res :Result(List(Visa)));
+
+  visaIdsRequest    @7 () -> (res :List(UInt64));
 }
 
 struct OkOrError {
@@ -507,7 +514,6 @@ enum VisaDenyCode {
   quotaExceeded   @7;
   noRoute         @8;
 }
-
 
 struct Visa {
   issuerId    @0 :UInt64;    # unique in a running ZPRnet
