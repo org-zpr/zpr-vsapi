@@ -339,7 +339,7 @@ interface VSHandle {
   # If the node requests too many visas, the visa will return a quotaExceeded error
   visaRequestById   @6 (req :List(UInt64)) -> (res :Result(List(Visa)));
 
-  visaIdsRequest    @7 () -> (res :List(UInt64));
+  visaIdsRequest    @7 () -> (res :Result(List(UInt64)));
 }
 
 struct OkOrError {
