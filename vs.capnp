@@ -441,6 +441,7 @@ struct ConnectRequest {
   claims         @1 :List(Claim);
   substrateAddr  @2 :IpAddr;
   dockInterface  @3 :UInt8;  # zero means 'unspecified/default'
+  a2aDhPublicKey @4 :PublicKey;
 }
 
 
@@ -561,6 +562,11 @@ struct KeySet {
   format     @0 :KeyFormat;
   ingressKey @1 :Data;
   egressKey  @2 :Data;
+}
+
+struct PublicKey {
+  format     @0 :KeyFormat;
+  publicKey  @1 :Data;
 }
 
 # TODO: Not yet implemented
