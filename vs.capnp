@@ -628,7 +628,6 @@ interface VisaSupportService {
   connect @0 (req: VSSConnectRequest) -> (resp: Result(VSSHandle));
 }
 
-# TODO: Information about policy and topology
 interface VSSHandle {
   pushVisaOp            @0 (ops :List(VisaOp)) -> (ack :Ack);
   revokeAuthentication  @1 (addrs :List(IpAddr)) -> (ack :Ack);
@@ -636,6 +635,7 @@ interface VSSHandle {
   ping                  @3 () -> (res :OkOrError);
   configure             @4 (params :List(Param)) -> (res: OkOrError);
   setTopology           @5 (links :List(Link)) -> (res :OkOrError);
+  requestAuthentication @6 (addrs :List(IpAddr)) -> (ack: Ack);
 }
 
 struct VSSConnectRequest { # reserved for future
