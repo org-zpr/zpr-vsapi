@@ -414,10 +414,11 @@ enum VSConnT {
 }
 
 enum ParamT {
-  string @0;   # Text
-  u64    @1;   # UInt64
-  ipv4   @2;   # Data
-  ipv6   @3;   # Data
+  string       @0;   # Text
+  u64          @1;   # UInt64
+  ipv4         @2;   # Data
+  ipv6         @3;   # Data
+  x25519Pubkey @4;   # Data
 }
 
 struct Param {
