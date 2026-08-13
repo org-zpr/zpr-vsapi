@@ -691,6 +691,7 @@ struct Link {
   linkId   @0 :Text;     # unique, for debugging.
   peer     @1 :SockAddr;
   role     @2 :LinkRole;
+  visas    @3 :List(Visa);  # bootstrap visas to aid in joins
 }
 
 enum LinkRole {
