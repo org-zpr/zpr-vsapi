@@ -689,9 +689,10 @@ struct Ack {
 
 struct Link {
   linkId   @0 :Text;     # unique, for debugging.
-  peer     @1 :SockAddr;
+  peer     @1 :SockAddr; # substrate address of the peer
   role     @2 :LinkRole;
   visas    @3 :List(Visa);  # bootstrap visas to aid in joins
+  zprAddr  @4 :IpAddr;   # ZPR address of the peer. May be unset (older senders).
 }
 
 enum LinkRole {
