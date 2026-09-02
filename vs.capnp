@@ -383,9 +383,16 @@ struct ReauthRequest {
 
 struct AuthBlob {
   union {
-    ss @0 :SelfSignedBlob;
-    ac @1 :AuthCodeBlob;
+    ss   @0 :SelfSignedBlob;
+    ac   @1 :AuthCodeBlob;     # legacy BAS; removed in OIDC-D4 follow-up
+    oidc @2 :OidcBlob;
   }
+}
+
+struct OidcBlob {
+  issuer  @0 :Text;   # selector: which declared trusted service to validate against. Never a trust input.
+  idToken @1 :Text;   # the JWT, verbatim
+  nonce   @2 :Text;   # expected `nonce` claim (see nonce contract). The node has verified its freshness.
 }
 
 struct SelfSignedBlob {
@@ -607,6 +614,7 @@ enum ErrorCode {
   temporarilyUnavailable @7;
   authError              @8;
   paramError             @9;
+  policyDenied           @10; # authentication succeeded; no join policy admits this endpoint
 }
 
 
@@ -657,12 +665,23 @@ struct VSSConnectRequest { # reserved for future
 struct ServiceDescriptor {
   stype      @0 :ServiceT;
   serviceId  @1 :Text;
-  serviceUri @2 :Text;
-  zprAddr    @3 :IpAddr;
+  serviceUri @2 :Text;            # for oidcAuthentication: the issuer URL
+  zprAddr    @3 :IpAddr;          # unspecified (::) for off-net services
+  oidc       @4 :OidcClientConfig; # set when stype == oidcAuthentication
 }
 
 enum ServiceT {
   actorAuthentication @0;
+  oidcAuthentication  @1;
+}
+
+# What a Relying Party needs. All public data.
+struct OidcClientConfig {
+  issuer             @0 :Text;
+  clientId           @1 :Text;
+  clientSecret       @2 :Text;   # "" = none
+  scopes             @3 :List(Text);
+  allowOfflineAccess @4 :Bool;
 }
 
 
